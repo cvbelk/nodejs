@@ -28,11 +28,11 @@ const product = {
 
 // const label = product.label;
 // const stock = product.stock;
-const {label: productLabel, stock, rating = 5} = product; //rating default value
-console.log(productLabel);
-console.log(stock);
-console.log(rating); //undefined if no value given
-const transaction = (type, {label, stock}) => {
+// const {label: productLabel, stock, rating = 5} = product; //rating default value
+// console.log(productLabel);
+// console.log(stock);
+// console.log(rating); //undefined if no value given
+const transaction = (type, {label, stock = 0 } = {}) => {
     console.log(type, label, stock);
 }
-transaction('order', product) 
+transaction('order', product);
