@@ -1,4 +1,11 @@
 {{>header}}
     <p>Use this site to get weather</p>
-    </div> <!--main-content-->
+    <form id="searchForm">
+        <input type="text" id="searchInput" placeholder="Location">
+        <button id="submitBtn">Search</button>
+    </form>
+    <p id="forecastPar"></p>
+    <p id="errorPar"></p>
+</div> <!--main-content-->
+<script src="/js/front.js"></script>
 {{>footer}}

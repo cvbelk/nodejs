@@ -46,3 +46,21 @@ img.about {
     text-decoration: none;
 
 }
+
+#searchInput {
+    border: 1px solid #cccccc;
+    padding: 8px;
+
+}
+
+#submitBtn{
+    cursor: pointer;
+    border: 1px solid #888888;
+    background: #888888;
+    color: white;
+    padding: 8px;
+}
+#submitBtn:hover{
+    background: #333333;
+    border: 1px solid #333333;
+}
