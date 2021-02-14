@@ -11,9 +11,9 @@ const foreCast = (cordinates, callback) => {
         } else {
 
             //const data = body;
-            const {location, current } = body;
+            const {current} = body;
             //console.log(body);
-            callback(undefined, {location, current});
+            callback(undefined, {current});
         }
     })    
     }
