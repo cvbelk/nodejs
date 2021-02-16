@@ -4,8 +4,11 @@ const path = require('path');
 
 const geoCode = require('./utils/geocode.js');
 const foreCast = require('./utils/forecast.js');
+const { join } = require('path');
 
 const app = express();
+const portHeroku = process.env.PORT || 3000; //for heroku deploy 
+
 //define paths for express config
 const publicDir = path.join(__dirname, '../public'); // __dirname and __filename are like $_SERVER[]
 const viewsPath = path.join(__dirname, '../templates/views');
@@ -43,16 +46,17 @@ app.get('/weather', (req, res) => {
     if (!req.query.address) {
         return res.send({error: 'You must provide a location'});
     } 
-
     geoCode(req.query.address, (error, {geoLocation, lat, lon} = {}) => {
         if (error) {
             return res.send({error});
         }
-            foreCast([lon, lat], (error,{location, current}) => {
+            foreCast([lon, lat], (error, {current}) => {
                 if (error) {
                     return res.send({error});
                 }
+
                 res.send({
+                    lat_lon: `${lon}, ${lat}`,
                     user_address: req.query.address,
                     geo_location: geoLocation,
                     temperature: current.temperature,
@@ -65,7 +69,7 @@ app.get('/weather', (req, res) => {
 });
 
 app.get('/products', (req, res) => {
-    //console.log(req.query);
+    
     if (!req.query.search) {
        return res.send({error: 'You must provide a search term'});
        //return used to end the function, there can be only one res.send
@@ -94,6 +98,6 @@ app.get('*', (req, res) => {
     });
 });
   
-app.listen(3000, () => {
-    console.log('Server is up on port 3000.');
-})
+app.listen(portHeroku, () => {
+    console.log('Server is up on port ' + portHeroku);
+});

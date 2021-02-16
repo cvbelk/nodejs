@@ -1,5 +1,6 @@
+//fetch(`http://127.0.0.1:3000/weather?address=${userAddress}`)
 const getForecast = (userAddress) => {
-    return fetch(`http://127.0.0.1:3000/weather?address=${userAddress}`).then((response) => {
+    return fetch(`/weather?address=${userAddress}`).then((response) => {
         if (response.status === 200) {
             return response.json();
         } else {
@@ -27,7 +28,8 @@ weatherForm.addEventListener('submit', (e) => {
             forecastPar.innerHTML = `Forecast for: <b>${data.geo_location}</b> <br>`;
             forecastPar.innerHTML += `<br>Temperature: <b>${data.temperature}</b><br>` 
             forecastPar.innerHTML += `<br>Feels like: <b>${data.feels_like}</b><br>`;
-            forecastPar.innerHTML += `<br>Weather description: <b>${data.weather_description}</b>`;
+            forecastPar.innerHTML += `<br>Weather description: <b>${data.weather_description}</b><br>`;
+            forecastPar.innerHTML += `<br>Lat/lon: <b>${data.lat_lon}</b>`;
         }
     }).catch((error) => {
         errorPar.textContent = `error fetch occured: ${error} `;
