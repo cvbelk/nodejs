@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const ModelTask = mongoose.model('Tasks', {
+const taskSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
@@ -10,20 +10,13 @@ const ModelTask = mongoose.model('Tasks', {
     completed: {
         type: Boolean,
         default: false
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'   //referenced to user.id, many to one relation
     }
 });
 
-// const task = new ModelTask({
-//     description: 'drop the cat  ',
-//    completed: true
-// });
-
-// task.save().then(() => {
-//     console.log(task);
-//     mongoose.disconnect();
-// }).catch((error) => {
-//     console.log(error);
-//     mongoose.disconnect();
-// });
-
+const ModelTask = mongoose.model('Tasks', taskSchema);
 module.exports = ModelTask;

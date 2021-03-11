@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const ModelTask = require('../models/task');
 
-const ModelUser = mongoose.model('User', {  //mongoose pluralizes 'User' into collection name 'users' by default
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
         trim: true
     },
     age: {
@@ -20,6 +24,7 @@ const ModelUser = mongoose.model('User', {  //mongoose pluralizes 'User' into co
         type: String,
         required: true,
         trim: true,
+        unique: true,
         lowercase: true,
         validate(value) {
             if(!validator.isEmail(value)) {
@@ -37,21 +42,69 @@ const ModelUser = mongoose.model('User', {  //mongoose pluralizes 'User' into co
                 throw new Error('Invalid password!');
             }
         }
-    }
+    }, //auth
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
 });
 
-// const person = new User({
-//    name: 'Oleh3',
-//    email: 'cvbelk@gmail.com ',
-//    age: 34,
-//    password: '  paSsword'
-// });
+//relationship for task
+//virtual field
+userSchema.virtual('tasks', {
+    ref: 'Tasks',    //ref name like declared in model
+    localField: '_id',
+    foreignField: 'owner'
+});
 
-// person.save().then(() => {
-//     console.log(person);  //without resolve in then, because resolve = preson
-// }).catch ((error) => {
-//     console.log('Error saving:', error);
-//     mongoose.disconnect();
-// });
+//---------------auth
+//instance methods
+userSchema.methods.generateAuthToken = async function () {
+    const user = this;
+    const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse');
+    user.tokens = user.tokens.concat({ token: token });
+    await user.save();
+    return token;   
+}
+//overloading
+//generating output without secure props in ALL routes, otherwise rename, and use {user: myFunc():Object}
+userSchema.methods.toJSON = function () {
+    const user = this;
+    const userObject = user.toObject();
+    delete userObject.tokens; //delete property
+    delete userObject.password;
+    return userObject;
+}
+//static methods
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await ModelUser.findOne({ email });
+    if (!user) {
+        throw new Error('Unable to login');
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        throw new Error ('wrong password');
+    }
+    return user;
+}
 
+//middleware: userSchema.pre - before action, userSchema.post - after
+userSchema.pre('save', async function(next) { //before user is saved
+    const user = this;
+    if (user.isModified('password')) {
+        user.password = await bcrypt.hash(user.password, 8);
+    }
+
+    next(); // important to call !
+});
+//delete user tasks when user is removed
+userSchema.pre('remove', async function(next){
+    const user = this;
+    await ModelTask.deleteMany({owner: user._id});
+    next();
+});
+
+const ModelUser = mongoose.model('User', userSchema);  //mongoose pluralizes 'User' into collection name 'users' by default
 module.exports = ModelUser;
